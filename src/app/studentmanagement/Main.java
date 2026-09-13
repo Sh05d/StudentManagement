@@ -1,5 +1,6 @@
 package app.studentmanagement;
 import java.util.Scanner;
+import java.io.*;
 
 public class Main {
 
@@ -22,7 +23,7 @@ public class Main {
 				break;
 				
 			case 2:
-				showStudents(students, index);
+				showStudents();
 				break;
 				
 			case 3:
@@ -89,15 +90,30 @@ public class Main {
 	}
 	
 	/**
-	 * Displays all students currently stored in the array.
-	 *
-	 * @param students the array containing the students
-	 * @param index    the number of students currently stored
+	 * Displays all students currently stored in the file.
 	 */
-	private static void showStudents(Student[] students, int index) {
-		System.out.println("Students:");
-		for (int i = 0; i < index; i++) {
-			System.out.println(students[i].studentInfo());
+	private static void showStudents() {
+		try {
+			Scanner fileScanner = new Scanner(new File("students.txt"));
+
+			while (fileScanner.hasNextLine()) {
+				String line = fileScanner.nextLine();
+
+				String[] data = line.split(",");
+
+				String name = data[0];
+				int age = Integer.parseInt(data[1]);
+				double grade = Double.parseDouble(data[2]);
+
+				Student student = new Student(name, age, grade);
+
+				System.out.println(student.studentInfo());
+			}
+
+			fileScanner.close();
+
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
 		}
 	}
 	
