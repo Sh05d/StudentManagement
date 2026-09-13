@@ -29,7 +29,7 @@ public class Main {
 				break;
 				
 			case 3:
-				searchStudent(students, index);
+				searchStudent();
 				break;
 
 			case 4:
@@ -125,11 +125,8 @@ public class Main {
 	/**
 	 * Searches for a student by name and displays the student's information if a
 	 * matching student is found.
-	 *
-	 * @param students the array containing the students
-	 * @param index    the number of students currently stored
 	 */
-	private static void searchStudent(Student[] students, int index) {
+	private static void searchStudent() {
 		System.out.println("enter student name:");
 
 		scanner.nextLine();
@@ -137,17 +134,38 @@ public class Main {
 
 		boolean found = false;
 
-		for (int i = 0; i < index; i++) {
-			if (students[i].getName().equalsIgnoreCase(searchName)) {
+		try {
+			Scanner fileScanner = new Scanner(new File("students.txt"));
 
-				System.out.println(students[i].studentInfo());
-				found = true;
-				break;
+			while (fileScanner.hasNextLine()) {
+
+				String line = fileScanner.nextLine();
+				String[] data = line.split(",");
+
+				String name = data[0];
+
+				if (name.equalsIgnoreCase(searchName)) {
+
+					int age = Integer.parseInt(data[1]);
+					double grade = Double.parseDouble(data[2]);
+
+					Student student = new Student(name, age, grade);
+
+					System.out.println(student.studentInfo());
+
+					found = true;
+					break;
+				}
+
 			}
 
+			fileScanner.close();
+
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			if (!found)
+				System.out.println("Student NOT found");
 		}
-		if (!found)
-			System.out.println("Student NOT found");
 	}
 
 }
