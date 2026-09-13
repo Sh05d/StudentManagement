@@ -20,6 +20,14 @@ public class Main {
 			case 1:
 				index = addStudent(students, index);
 				break;
+				
+			case 2:
+				showStudents(students, index);
+				break;
+				
+			case 3:
+				searchStudent(students, index);
+				break;
 
 			case 4:
 				System.out.println("Thank you");
@@ -78,6 +86,47 @@ public class Main {
 		System.out.println("Student added successfully");
 
 		return index + 1;
+	}
+	
+	/**
+	 * Displays all students currently stored in the array.
+	 *
+	 * @param students the array containing the students
+	 * @param index    the number of students currently stored
+	 */
+	private static void showStudents(Student[] students, int index) {
+		System.out.println("Students:");
+		for (int i = 0; i < index; i++) {
+			System.out.println(students[i].studentInfo());
+		}
+	}
+	
+	/**
+	 * Searches for a student by name and displays the student's information if a
+	 * matching student is found.
+	 *
+	 * @param students the array containing the students
+	 * @param index    the number of students currently stored
+	 */
+	private static void searchStudent(Student[] students, int index) {
+		System.out.println("enter student name:");
+
+		scanner.nextLine();
+		String searchName = scanner.nextLine();
+
+		boolean found = false;
+
+		for (int i = 0; i < index; i++) {
+			if (students[i].getName().equalsIgnoreCase(searchName)) {
+
+				System.out.println(students[i].studentInfo());
+				found = true;
+				break;
+			}
+
+		}
+		if (!found)
+			System.out.println("Student NOT found");
 	}
 
 }
