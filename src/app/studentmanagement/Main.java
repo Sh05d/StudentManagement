@@ -1,4 +1,6 @@
 package app.studentmanagement;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 import java.io.*;
 
@@ -19,7 +21,7 @@ public class Main {
 			switch (option) {
 
 			case 1:
-				index = addStudent(students, index);
+				addStudent();
 				break;
 				
 			case 2:
@@ -58,37 +60,40 @@ public class Main {
 	}
 	
 	/**
-	 * Adds a new student to the students array.
+	 * Adds a new student to the students file.
 	 *
-	 * @param students the array containing the students
-	 * @param index    the position where the new student will be stored
-	 * @return the updated index after adding the student
+	 * The method reads the student's name, age, and grade
+	 * from the user and saves the student data to the file.
+	 *
+	 * If an I/O error occurs while writing to the file,
+	 * the error message is displayed.
 	 */
-	static int addStudent(Student[] students, int index) {
+	static void addStudent() {
 
-		if (index >= students.length) {
-			System.out.println("You can't add more students");
-			return index;
-		}
+	    scanner.nextLine();
 
-		scanner.nextLine();
+	    System.out.println("Enter student name:");
+	    String name = scanner.nextLine();
 
-		System.out.println("Enter student " + (index + 1) + " Name:");
-		String name = scanner.nextLine();
+	    System.out.println("Enter student age:");
+	    int age = scanner.nextInt();
 
-		System.out.println("Enter student " + (index + 1) + " age:");
-		int age = scanner.nextInt();
+	    System.out.println("Enter student grade:");
+	    double grade = scanner.nextDouble();
 
-		System.out.println("Enter student " + (index + 1) + " grade:");
-		double grade = scanner.nextDouble();
+	    try {
+	        FileWriter writer = new FileWriter("students.txt", true);
 
-		students[index] = new Student(name, age, grade);
+	        writer.write(name + "," + age + "," + grade + "\n");
 
-		System.out.println("Student added successfully");
+	        writer.close();
 
-		return index + 1;
+	        System.out.println("Student added successfully");
+
+	    } catch (IOException e) {
+	        System.out.println(e.getMessage());
+	    }
 	}
-	
 	/**
 	 * Displays all students currently stored in the file.
 	 */
