@@ -2,6 +2,9 @@ package app.studentmanagement;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+
+import app.studentmanagement.constants.FileConstant;
+
 import java.io.*;
 
 public class Main {
@@ -9,8 +12,7 @@ public class Main {
 	static Scanner scanner = new Scanner(System.in);
 	
 	public static void main(String[] args) {
-		Student students[] = new Student[5];
-		int index = 0;
+		
 		int option;
 
 		do {
@@ -106,9 +108,9 @@ public class Main {
 
 				String[] data = line.split(",");
 
-				String name = data[0];
-				int age = Integer.parseInt(data[1]);
-				double grade = Double.parseDouble(data[2]);
+				String name = data[FileConstant.NAME_INDEX];
+				int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
+				double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
 
 				Student student = new Student(name, age, grade);
 
@@ -142,12 +144,12 @@ public class Main {
 				String line = fileScanner.nextLine();
 				String[] data = line.split(",");
 
-				String name = data[0];
+				String name = data[FileConstant.NAME_INDEX];
 
 				if (name.equalsIgnoreCase(searchName)) {
 
-					int age = Integer.parseInt(data[1]);
-					double grade = Double.parseDouble(data[2]);
+					int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
+					double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
 
 					Student student = new Student(name, age, grade);
 
