@@ -1,4 +1,4 @@
-package app.studentmanagement;
+package app.studentmanagement.model;
 
 public class Student {
 	private String name;
@@ -56,7 +56,7 @@ public class Student {
 			return "Failed";
 
 	}
-	
+
 	/** @return the student's grade level based on their grade. */
 	public String getGradeLevel() {
 		if (this.grade >= 90)
