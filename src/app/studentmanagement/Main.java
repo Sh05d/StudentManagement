@@ -1,9 +1,7 @@
 package app.studentmanagement;
 
-import java.io.*;
 import java.util.Scanner;
 
-import app.studentmanagement.constants.FileConstant;
 import app.studentmanagement.model.Student;
 import app.studentmanagement.service.StudentService;
 
@@ -35,7 +33,8 @@ public class Main {
 
 			case 2:
 				System.out.println("[INFO] Starting Show Students operation.");
-				showStudents();
+				studentService.showStudents();
+				System.out.println("[INFO] Students Showed successfully ");
 				break;
 
 			case 3:
@@ -84,61 +83,15 @@ public class Main {
 		System.out.println("Enter student name:");
 		String name = scanner.nextLine();
 
-		System.out.println("[INFO] Student name entered: " + name);
-
 		System.out.println("Enter student age:");
 		int age = scanner.nextInt();
-
-		System.out.println("[INFO] Student age entered: " + age);
 
 		System.out.println("Enter student grade:");
 		double grade = scanner.nextDouble();
 
-		System.out.println("[INFO] Student grade entered: " + grade);
-
 		Student student = new Student(name, age, grade);
 
 		studentService.addStudent(student);
-
-		System.out.println("[INFO] Student added successifully ");
-	}
-
-	/**
-	 * Displays all students currently stored in the file.
-	 */
-	private static void showStudents() {
-
-		System.out.println("[INFO] Reading students from students.txt.");
-
-		try {
-
-			Scanner fileScanner = new Scanner(new File("students.txt"));
-
-			while (fileScanner.hasNextLine()) {
-
-				String line = fileScanner.nextLine();
-
-				String[] data = line.split(",");
-
-				String name = data[FileConstant.NAME_INDEX];
-
-				int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
-
-				double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
-
-				Student student = new Student(name, age, grade);
-
-				System.out.println(student.studentInfo());
-			}
-
-			fileScanner.close();
-
-			System.out.println("[INFO] Finished reading students.");
-
-		} catch (IOException e) {
-
-			System.out.println("[ERROR] Failed to read students file.");
-		}
 	}
 
 	/**
@@ -155,48 +108,6 @@ public class Main {
 
 		System.out.println("[INFO] Searching for student: " + searchName);
 
-		boolean found = false;
-
-		try {
-
-			Scanner fileScanner = new Scanner(new File("students.txt"));
-
-			while (fileScanner.hasNextLine()) {
-
-				String line = fileScanner.nextLine();
-
-				String[] data = line.split(",");
-
-				String name = data[FileConstant.NAME_INDEX];
-
-				if (name.equalsIgnoreCase(searchName)) {
-
-					int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
-
-					double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
-
-					Student student = new Student(name, age, grade);
-
-					System.out.println("[INFO] Student found: " + name);
-
-					System.out.println(student.studentInfo());
-
-					found = true;
-
-					break;
-				}
-			}
-
-			fileScanner.close();
-
-			if (!found) {
-
-				System.out.println("[INFO] Student not found: " + searchName);
-			}
-
-		} catch (IOException e) {
-
-			System.out.println("[ERROR] Failed to search students file.");
-		}
+		studentService.searchStudent(searchName);
 	}
 }
