@@ -1,5 +1,6 @@
 package app.studentmanagement;
 
+import java.util.List;
 import java.util.Scanner;
 
 import app.studentmanagement.model.Student;
@@ -33,8 +34,7 @@ public class Main {
 
 			case 2:
 				System.out.println("[INFO] Starting Show Students operation.");
-				studentService.showStudents();
-				System.out.println("[INFO] Students Showed successfully ");
+				showStudents();
 				break;
 
 			case 3:
@@ -93,6 +93,17 @@ public class Main {
 
 		studentService.addStudent(student);
 	}
+	
+	/**
+	 * Retrieves and displays all students.
+	 */
+	static void showStudents() {
+		List<Student> students = studentService.showStudents();
+		for (Student student : students) {
+			System.out.println(student.studentInfo());
+		}
+		System.out.println("[INFO] Students Showed successfully ");
+	}
 
 	/**
 	 * Searches for a student by name and displays the student's information if a
@@ -108,6 +119,8 @@ public class Main {
 
 		System.out.println("[INFO] Searching for student: " + searchName);
 
-		studentService.searchStudent(searchName);
+		String searchResult = studentService.searchStudent(searchName);
+		
+		System.out.println(searchResult);
 	}
 }
