@@ -16,13 +16,16 @@ public class StudentService {
 
 	}
 
-	public void addStudent(Student student) {
+	// Create
+	public boolean addStudent(Student student) {
 		double totalGrade = student.getGrade() + ATTENDENT_GRADE;
 		student.setGrade(totalGrade);
 
-		studentDAO.addStudent(student);
+		boolean flag = studentDAO.addStudent(student);
+		return flag;
 	}
 
+	// Read
 	public List<Student> showStudents() {
 		List<Student> students = new ArrayList<Student>();
 		students = studentDAO.getAllStudent();
@@ -37,5 +40,17 @@ public class StudentService {
 		} else {
 			return student.studentInfo();
 		}
+	}
+
+	// Update
+	public boolean updateCourse(int id, Student student) {
+		boolean flag = studentDAO.updateStudent(id, student);
+		return flag;
+	}
+
+	// Delete
+	public boolean deleteCourse(int id) {
+		boolean flag = studentDAO.deleteStudent(id);
+		return flag;
 	}
 }

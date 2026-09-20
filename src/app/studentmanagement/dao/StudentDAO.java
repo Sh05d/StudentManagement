@@ -12,7 +12,8 @@ import app.studentmanagement.model.Student;
 
 public class StudentDAO {
 
-	public void addStudent(Student student) {
+	// Create
+	public boolean addStudent(Student student) {
 		try {
 
 			System.out.println("[INFO] Opening students.txt for writing.");
@@ -25,12 +26,16 @@ public class StudentDAO {
 
 			System.out.println("[INFO] Student added successfully.");
 
+			return true;
+
 		} catch (IOException e) {
 
 			System.out.println("[ERROR] Failed to write student to file.");
 		}
+		return false;
 	}
 
+	// Read
 	public List<Student> getAllStudent() {
 		List<Student> students = new ArrayList<Student>();
 
@@ -106,5 +111,15 @@ public class StudentDAO {
 		}
 
 		return student;
+	}
+
+	// Update
+	public boolean updateStudent(int id, Student student) {
+		return true;
+	}
+
+	// Delete
+	public boolean deleteStudent(int id) {
+		return true;
 	}
 }

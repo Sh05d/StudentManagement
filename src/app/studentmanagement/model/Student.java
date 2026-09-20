@@ -1,18 +1,30 @@
 package app.studentmanagement.model;
 
 public class Student {
+	private int id;
 	private String name;
 	private int age;
 	private double grade;
 
-	// Constructor
+	// Constructors
 	public Student(String name, int age, double grade) {
 		this.name = name;
 		this.age = age;
 		this.grade = grade;
 	}
 
+	public Student(int id, String name, int age, double grade) {
+		this.id = id;
+		this.name = name;
+		this.age = age;
+		this.grade = grade;
+	}
+
 	// Setters
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -24,8 +36,11 @@ public class Student {
 	public void setGrade(double grade) {
 		this.grade = grade;
 	}
+	// Setters
+	public int getId() {
+		return id;
+	}
 
-	// Getters
 	public String getName() {
 		return name;
 	}
