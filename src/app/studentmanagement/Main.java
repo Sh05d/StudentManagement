@@ -1,10 +1,13 @@
 package app.studentmanagement;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
 import app.studentmanagement.model.Student;
 import app.studentmanagement.service.StudentService;
+import app.studentmanagement.util.DBConnection;
 
 public class Main {
 
@@ -13,6 +16,8 @@ public class Main {
 
 	public static void main(String[] args) {
 
+		testConnection();
+		
 		int option;
 
 		do {
@@ -78,9 +83,11 @@ public class Main {
 	 */
 	static void addStudent() {
 
-		scanner.nextLine();
+		System.out.println("Enter student id:");
+		int id = scanner.nextInt();
 
 		System.out.println("Enter student name:");
+		scanner.nextLine();
 		String name = scanner.nextLine();
 
 		System.out.println("Enter student age:");
@@ -89,23 +96,39 @@ public class Main {
 		System.out.println("Enter student grade:");
 		double grade = scanner.nextDouble();
 
-		Student student = new Student(name, age, grade);
+		Student student = new Student(id, name, age, grade);
 
-		boolean flag = studentService.addStudent(student);
-		if (flag) {
-			System.out.println("Student added successfully");
+		try {
+			boolean flag = studentService.addStudent(student);
+
+			if (flag) {
+				System.out.println("Student added successfully.");
+			}
+		} catch (SQLException e) {
+			System.out.println("[ERROR] Failed to add student.");
+			System.out.println("[ERROR] " + e.getMessage());
 		}
+
 	}
-	
+
 	/**
 	 * Retrieves and displays all students.
 	 */
 	static void showStudents() {
-		List<Student> students = studentService.showStudents();
-		for (Student student : students) {
-			System.out.println(student.studentInfo());
+		try {
+			List<Student> students = studentService.showStudents();
+
+			for (Student student : students) {
+				System.out.println(student.studentInfo());
+			}
+
+			System.out.println("[INFO] Students displayed successfully.");
+
+		} catch (SQLException e) {
+			System.out.println("[ERROR] Failed to retrieve students.");
+			System.out.println("[ERROR] " + e.getMessage());
 		}
-		System.out.println("[INFO] Students Showed successfully ");
+
 	}
 
 	/**
@@ -122,8 +145,31 @@ public class Main {
 
 		System.out.println("[INFO] Searching for student: " + searchName);
 
-		String searchResult = studentService.searchStudent(searchName);
-		
-		System.out.println(searchResult);
+		try {
+			String searchResult = studentService.searchStudent(searchName);
+			System.out.println(searchResult);
+		} catch (SQLException e) {
+			System.out.println("[ERROR] Failed to retrieve student.");
+			System.out.println("[ERROR] " + e.getMessage());
+		}
+
+	}
+	
+	/**
+	 * Tests the database connection.
+	 */
+	public static void testConnection() {
+
+		try {
+			Connection connection = DBConnection.getConnection();
+			System.out.println("[INFO] Database connection started.");
+
+			System.out.println("Connected to the database successfully.");
+
+			connection.close();
+			System.out.println("[INFO] Database connection closed.");
+		} catch (SQLException e) {
+			System.out.println("[ERROR] " + e.getMessage());
+		}
 	}
 }

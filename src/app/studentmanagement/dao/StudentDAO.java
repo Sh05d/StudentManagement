@@ -1,113 +1,108 @@
 package app.studentmanagement.dao;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import app.studentmanagement.constants.FileConstant;
+import app.studentmanagement.constants.StudentConstant;
 import app.studentmanagement.model.Student;
+import app.studentmanagement.util.DBConnection;
 
 public class StudentDAO {
 
+	private DBConnection dbConnection;
+
+	public StudentDAO() {
+		dbConnection = new DBConnection();
+	}
+
 	// Create
-	public boolean addStudent(Student student) {
-		try {
+	public boolean addStudent(Student student) throws SQLException {
 
-			System.out.println("[INFO] Opening students.txt for writing.");
+		String sql = "INSERT INTO student (id, name, age, grade) VALUES (?,?,?,?)";
 
-			FileWriter writer = new FileWriter("students.txt", true);
+		System.out.println("[INFO] Writing student to database.");
+		try (Connection connection = DBConnection.getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
 
-			writer.write(student.getName() + "," + student.getAge() + "," + student.getGrade() + "\n");
+			System.out.println("[INFO] Database connection established.");
 
-			writer.close();
+			System.out.println("[INFO] Adding student. ID: " + student.getId());
 
-			System.out.println("[INFO] Student added successfully.");
+			preparedStatement.setInt(StudentConstant.ID_INDEX, student.getId());
+			preparedStatement.setString(StudentConstant.NAME_INDEX, student.getName());
+			preparedStatement.setInt(StudentConstant.AGE_INDEX, student.getAge());
+			preparedStatement.setDouble(StudentConstant.GRADE_INDEX, student.getGrade());
+
+			preparedStatement.executeUpdate();
+
+			System.out.println("[INFO] Student added successfully. ID: " + student.getId());
 
 			return true;
-
-		} catch (IOException e) {
-
-			System.out.println("[ERROR] Failed to write student to file.");
 		}
-		return false;
 	}
 
 	// Read
-	public List<Student> getAllStudent() {
+	public List<Student> getAllStudent() throws SQLException {
 		List<Student> students = new ArrayList<Student>();
 
-		System.out.println("[INFO] Reading students from students.txt.");
+		String sql = "SELECT id, name, age, grade FROM student";
+		System.out.println("[INFO] Reading students from database.");
+		try (Connection connection = DBConnection.getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(sql);
+				ResultSet resultSet = preparedStatement.executeQuery()) {
 
-		try {
+			while (resultSet.next()) {
 
-			Scanner fileScanner = new Scanner(new File("students.txt"));
+				int id = resultSet.getInt(StudentConstant.ID_INDEX);
+				String name = resultSet.getString(StudentConstant.NAME_INDEX);
+				int age = resultSet.getInt(StudentConstant.AGE_INDEX);
+				double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
 
-			while (fileScanner.hasNextLine()) {
-
-				String line = fileScanner.nextLine();
-
-				String[] data = line.split(",");
-
-				String name = data[FileConstant.NAME_INDEX];
-
-				int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
-
-				double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
-
-				Student student = new Student(name, age, grade);
+				Student student = new Student(id, name, age, grade);
 
 				students.add(student);
 			}
 
-			fileScanner.close();
-
 			System.out.println("[INFO] Finished reading students.");
 
-		} catch (IOException e) {
-
-			System.out.println("[ERROR] Failed to read students file.");
 		}
-
 		return students;
 
 	}
 
-	public Student getStudentByName(String searchName) {
+	public Student getStudentByName(String searchName) throws SQLException {
+
+		String sql = "SELECT id, name, age, grade FROM student WHERE name = ?";
+		System.out.println("[INFO] Reading student from database.");
+
 		Student student = null;
-		try {
 
-			Scanner fileScanner = new Scanner(new File("students.txt"));
+		try (Connection connection = DBConnection.getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-			while (fileScanner.hasNextLine()) {
+			preparedStatement.setString(1, searchName);
 
-				String line = fileScanner.nextLine();
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-				String[] data = line.split(",");
+				if (resultSet.next()) {
 
-				String name = data[FileConstant.NAME_INDEX];
+					int id = resultSet.getInt(StudentConstant.ID_INDEX);
+					String name = resultSet.getString(StudentConstant.NAME_INDEX);
+					int age = resultSet.getInt(StudentConstant.AGE_INDEX);
+					double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
 
-				if (name.equalsIgnoreCase(searchName)) {
-
-					int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
-
-					double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
-
-					student = new Student(name, age, grade);
+					student = new Student(id, name, age, grade);
 
 					System.out.println("[INFO] Student found: " + name);
-
-					break;
+				} else {
+					System.out.println("[INFO] Student not found: " + searchName);
 				}
 			}
-
-			fileScanner.close();
-
-		} catch (IOException e) {
-
-			System.out.println("[ERROR] Failed to search students file.");
 		}
 
 		return student;
