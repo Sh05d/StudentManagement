@@ -7,26 +7,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import app.studentmanagement.constants.FileConstant;
 import app.studentmanagement.dao.StudentDAO;
 import app.studentmanagement.model.Student;
 
 public class StudentFileDAOImpl implements StudentDAO {
-
+	
+	private static final Logger logger = LogManager.getLogger(StudentFileDAOImpl.class);
+	
 	// Create
 	@Override
 	public boolean addStudent(Student student) throws IOException {
 		try (FileWriter writer = new FileWriter(FileConstant.FILE_PATH, true)) {
 
-			System.out.println("[INFO] Opening students.txt for writing.");
+			logger.debug("Opening students.txt for writing.");
 
-			writer.write(student.getId() + ","
-					+ student.getName() + "," 
+			writer.write(student.getName() + "," 
 					+ student.getAge() + "," 
 					+ student.getGrade()
 					+ "\n");
 
-			System.out.println("[INFO] Student added to students.txt successfully.");
+			logger.info("Student added to students.txt successfully.");
 
 			return true;
 		}
@@ -37,7 +41,7 @@ public class StudentFileDAOImpl implements StudentDAO {
 	public List<Student> getAllStudent() throws IOException {
 		List<Student> students = new ArrayList<Student>();
 
-		System.out.println("[INFO] Reading students from students.txt.");
+		logger.debug("Reading students from students.txt.");
 
 		try (Scanner fileScanner = new Scanner(new File(FileConstant.FILE_PATH))) {
 
@@ -47,29 +51,25 @@ public class StudentFileDAOImpl implements StudentDAO {
 
 				String[] data = line.split(",");
 
-				int id = Integer.parseInt(data[FileConstant.ID_INDEX]);
-
 				String name = data[FileConstant.NAME_INDEX];
-
 				int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
-
 				double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
 
-				Student student = new Student(id, name, age, grade);
+				Student student = new Student(name, age, grade);
 
 				students.add(student);
 			}
 
 		}
 
-		System.out.println("[INFO] Finished reading students.txt.");
+		logger.info("Finished reading students.txt.");
 		return students;
 	}
 
 	@Override
 	public Student getStudentByName(String searchName) throws IOException {
 		Student student = null;
-		System.out.println("[INFO] Reading student from students.txt.");
+		logger.debug("Reading student from students.txt.");
 
 		try (Scanner fileScanner = new Scanner(new File(FileConstant.FILE_PATH))) {
 
@@ -80,22 +80,19 @@ public class StudentFileDAOImpl implements StudentDAO {
 				String[] data = line.split(",");
 
 				String name = data[FileConstant.NAME_INDEX];
-
+				
 				if (name.equalsIgnoreCase(searchName)) {
-					int id = Integer.parseInt(data[FileConstant.ID_INDEX]);
-
 					int age = Integer.parseInt(data[FileConstant.AGE_INDEX]);
-
 					double grade = Double.parseDouble(data[FileConstant.GRADE_INDEX]);
 
-					student = new Student(id, name, age, grade);
+					student = new Student(name, age, grade);
 
-					System.out.println("[INFO] Student found: " + name);
+					logger.info("Student found: {}", searchName);
 
 					break;
 				}
 			}
-			System.out.println("[INFO] Finished reading students.txt.");
+			logger.info("Finished reading students.txt.");
 		}
 
 		return student;

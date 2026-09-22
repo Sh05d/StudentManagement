@@ -3,8 +3,12 @@ package app.studentmanagement.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import app.studentmanagement.dao.StudentDAO;
 import app.studentmanagement.dao.impl.StudentDBDAOImpl;
+import app.studentmanagement.exception.StudentAlreadyExistsException;
 import app.studentmanagement.model.Student;
 import app.studentmanagement.service.StudentService;
 
@@ -12,7 +16,8 @@ public class StudentBDServiceImpl implements StudentService {
 
 	private StudentDAO studentDAO;
 	StudentFileServiceImpl studentFileService;
-
+	private static final Logger logger = LogManager.getLogger(StudentBDServiceImpl.class);
+	 
 	public StudentBDServiceImpl() {
 		studentDAO = new StudentDBDAOImpl();
 		studentFileService = new StudentFileServiceImpl();
@@ -20,15 +25,23 @@ public class StudentBDServiceImpl implements StudentService {
 
 	// Create
 	@Override
-	public boolean addStudent(Student student) {
-		boolean flag = false;
+	public boolean addStudent(Student student) throws StudentAlreadyExistsException {
+
 		try {
-			flag = studentDAO.addStudent(student);
+
+			if (studentDAO.getStudentByName(student.getName()) != null) {
+				throw new StudentAlreadyExistsException("Student " + student.getName() + " already exists");
+			}
+
+			return studentDAO.addStudent(student);
+
+		} catch (StudentAlreadyExistsException e) {
+			throw e;
+
 		} catch (Exception e) {
-			System.out.println("[ERROR] Failed to add student to database.");
-			flag = studentFileService.addStudent(student);
+			logger.warn("Failed to add student to database. Using file storage.", e);
+			return studentFileService.addStudent(student);
 		}
-		return flag;
 	}
 
 	// Read
@@ -39,7 +52,7 @@ public class StudentBDServiceImpl implements StudentService {
 		try {
 			students = studentDAO.getAllStudent();
 		} catch (Exception e) {
-			System.out.println("[ERROR] Failed to retrieve students from database.");
+			logger.warn("Failed to retrieve students from database. Using file storage.", e);
 			students = studentFileService.showStudents();
 		}
 
@@ -50,7 +63,6 @@ public class StudentBDServiceImpl implements StudentService {
 	public String searchStudent(String studentName) {
 		try {
 			Student student = studentDAO.getStudentByName(studentName);
-			studentDAO.updateStudent(1, student);
 
 			if (student == null) {
 				return "Student not found";
@@ -58,7 +70,7 @@ public class StudentBDServiceImpl implements StudentService {
 				return student.studentInfo();
 			}
 		} catch (Exception e) {
-			System.out.println("[ERROR] Failed to retrieve student from database.");
+			logger.error("Failed to retrieve student from database. Using file storage.", e);
 			return studentFileService.searchStudent(studentName);
 		}
 

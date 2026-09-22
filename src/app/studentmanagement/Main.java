@@ -6,6 +6,10 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import app.studentmanagement.exception.StudentAlreadyExistsException;
 import app.studentmanagement.model.Student;
 import app.studentmanagement.service.impl.StudentBDServiceImpl;
 import app.studentmanagement.util.DBConnection;
@@ -14,56 +18,61 @@ public class Main {
 
 	static Scanner scanner = new Scanner(System.in);
 	static StudentBDServiceImpl studentService = new StudentBDServiceImpl();
+	private static final Logger logger = LogManager.getLogger(Main.class);
 
 	public static void main(String[] args) {
 
 		testConnection();
 
-		int option;
+		int option = 0;
 
-		try {
-			do {
+		do {
 
-				System.out.println("[INFO] Displaying main menu.");
+			logger.debug("Displaying main menu.");
 
-				showMenu();
+			showMenu();
+			try {
 
 				option = scanner.nextInt();
 
-				System.out.println("[INFO] User selected option: " + option);
+				logger.info("User selected menu option: {}", option);
 
 				switch (option) {
 
 				case 1:
-					System.out.println("[INFO] Starting Add Student operation.");
+					logger.info("Starting Add Student operation.");
 					addStudent();
 					break;
 
 				case 2:
-					System.out.println("[INFO] Starting Show Students operation.");
+					logger.info("Starting Show Students operation.");
 					showStudents();
 					break;
 
 				case 3:
-					System.out.println("[INFO] Starting Search Student operation.");
+					logger.info("Starting Search Student operation.");
 					searchStudent();
 					break;
 
 				case 4:
-					System.out.println("[INFO] User selected Exit.");
+					logger.info("User selected Exit.");
 					System.out.println("Thank you");
 					break;
 
 				default:
-					System.out.println("[ERROR] Incorrect option: " + option);
+					logger.warn("Invalid menu option entered: {}", option);
 					System.out.println("Incorrect option try again");
 				}
+			} catch (InputMismatchException e) {
+			    logger.warn("User Entered Invalid input.");
+			    System.out.println("Invalid input. Please try again.");
+			    scanner.nextLine();
+			
+			}
 
-			} while (option != 4);
-		} catch (InputMismatchException e) {
-			System.out.println("[ERROR] Invalid input");
-		}
-		System.out.println("[INFO] Application closed.");
+		} while (option != 4);
+
+		logger.info("Application closed.");
 
 		scanner.close();
 	}
@@ -87,10 +96,6 @@ public class Main {
 	 */
 	static void addStudent() {
 
-	
-		System.out.println("Enter student id:");
-		int id = scanner.nextInt();
-
 		System.out.println("Enter student name:");
 		scanner.nextLine();
 		String name = scanner.nextLine();
@@ -101,12 +106,20 @@ public class Main {
 		System.out.println("Enter student grade:");
 		double grade = scanner.nextDouble();
 
-		Student student = new Student(id, name, age, grade);
+		Student student = new Student(name, age, grade);
 
-		boolean flag = studentService.addStudent(student);
+		try {
+			boolean flag = studentService.addStudent(student);
+			if (flag) {
+				System.out.println("Student added successfully.");
+			}
+		} catch (StudentAlreadyExistsException e) {
+			System.out.println(e.getMessage());
+			logger.warn("Student already exists: {}", e.getMessage());
 
-		if (flag) {
-			System.out.println("Student added successfully.");
+		} catch (Exception e) {
+			System.out.println("An unexpected error occurred.");
+			logger.error("Error while adding student.", e);
 		}
 	}
 
@@ -120,7 +133,6 @@ public class Main {
 		for (Student student : students) {
 			System.out.println(student.studentInfo());
 		}
-		System.out.println("[INFO] Students displayed successfully.");
 	}
 
 	/**
@@ -135,7 +147,7 @@ public class Main {
 
 		String searchName = scanner.nextLine();
 
-		System.out.println("[INFO] Searching for student: " + searchName);
+		logger.info("User Searching for student: {}", searchName);
 
 		String searchResult = studentService.searchStudent(searchName);
 		System.out.println(searchResult);
@@ -149,14 +161,16 @@ public class Main {
 
 		try {
 			Connection connection = DBConnection.getConnection();
-			System.out.println("[INFO] Database connection started.");
+			logger.info("Database test connection started.");
 
 			System.out.println("Connected to the database successfully.");
 
 			connection.close();
-			System.out.println("[INFO] Database connection closed.");
+			logger.info("Database test connection closed.");
+			
 		} catch (SQLException e) {
-			System.out.println("[ERROR] " + e.getMessage());
+			System.out.println(e.getMessage());
+			logger.error("Database test connection failed.", e);
 		}
 	}
 }

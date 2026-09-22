@@ -3,14 +3,19 @@ package app.studentmanagement.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import app.studentmanagement.model.Student;
 import app.studentmanagement.service.StudentService;
 import app.studentmanagement.dao.StudentDAO;
 import app.studentmanagement.dao.impl.StudentFileDAOImpl;
+import app.studentmanagement.exception.StudentAlreadyExistsException;
 
 public class StudentFileServiceImpl implements StudentService {
 
 	private StudentDAO studentDAO;
+	private static final Logger logger = LogManager.getLogger(StudentFileServiceImpl.class);
 
 	public StudentFileServiceImpl() {
 		studentDAO = new StudentFileDAOImpl();
@@ -19,15 +24,24 @@ public class StudentFileServiceImpl implements StudentService {
 
 	// Create
 	@Override
-	public boolean addStudent(Student student) {
-		boolean flag = false;
+	public boolean addStudent(Student student) throws StudentAlreadyExistsException {
+
 		try {
+
+			if (studentDAO.getStudentByName(student.getName()) != null) {
+				throw new StudentAlreadyExistsException("Student " + student.getName() + " already exists");
+			}
+
 			return studentDAO.addStudent(student);
+
+		} catch (StudentAlreadyExistsException e) {
+
+			throw e;
+
 		} catch (Exception e) {
-			System.out.println("[ERROR] Failed to add student to students.txt.");
-			System.out.println("[ERROR] " + e.getMessage());
+			logger.error("Failed to add student to file storage.", e);
+			return false;
 		}
-		return flag;
 	}
 
 	// Read
@@ -37,8 +51,7 @@ public class StudentFileServiceImpl implements StudentService {
 		try {
 			students = studentDAO.getAllStudent();
 		} catch (Exception e) {
-			System.out.println("[ERROR] Failed to retrieve students from students.txt.");
-			System.out.println("[ERROR] " + e.getMessage());
+			logger.error("Failed to retrieve students from file storage.", e);
 		}
 		return students;
 	}
@@ -49,8 +62,7 @@ public class StudentFileServiceImpl implements StudentService {
 		try {
 			student = studentDAO.getStudentByName(studentName);
 		} catch (Exception e) {
-			System.out.println("[ERROR] Failed to retrieve student from students.txt.");
-			System.out.println("[ERROR] " + e.getMessage());
+			logger.error("Failed to retrieve student from file storage.", e);
 		}
 
 		if (student == null) {

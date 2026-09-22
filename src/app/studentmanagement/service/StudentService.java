@@ -6,7 +6,7 @@ import app.studentmanagement.model.Student;
 
 public interface StudentService {
 
-	public boolean addStudent(Student student);
+	public boolean addStudent(Student student) throws Exception;
 
 	public List<Student> showStudents();
 
