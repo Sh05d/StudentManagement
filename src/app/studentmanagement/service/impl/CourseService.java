@@ -1,8 +1,8 @@
-package app.studentmanagement.service;
+package app.studentmanagement.service.impl;
 
 import java.util.List;
 
-import app.studentmanagement.dao.CourseDAO;
+import app.studentmanagement.dao.impl.CourseDAO;
 import app.studentmanagement.model.Course;
 
 public class CourseService {
