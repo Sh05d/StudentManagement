@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import app.studentmanagement.constants.StudentConstant;
 import app.studentmanagement.dao.StudentDAO;
 import app.studentmanagement.model.Student;
@@ -16,6 +19,7 @@ import app.studentmanagement.util.DBConnection;
 public class StudentDBDAOImpl implements StudentDAO {
 
 	private DBConnection dbConnection;
+	private static final Logger logger = LogManager.getLogger(StudentDBDAOImpl.class);
 
 	public StudentDBDAOImpl() {
 		dbConnection = new DBConnection();
@@ -25,24 +29,24 @@ public class StudentDBDAOImpl implements StudentDAO {
 	@Override
 	public boolean addStudent(Student student) throws SQLException {
 
-		String sql = "INSERT INTO student (id, name, age, grade) VALUES (?,?,?,?)";
+		String sql = "INSERT INTO student (name, age, grade) VALUES (?,?,?)";
 
-		System.out.println("[INFO] Writing student to database.");
+		logger.debug("Writing student to database.");
 		try (Connection connection = DBConnection.getConnection();
 				PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
 
-			System.out.println("[INFO] Database connection established.");
+			logger.debug("Database connection established.");
 
-			System.out.println("[INFO] Adding student. ID: " + student.getId());
-
-			preparedStatement.setInt(StudentConstant.ID_INDEX, student.getId());
 			preparedStatement.setString(StudentConstant.NAME_INDEX, student.getName());
 			preparedStatement.setInt(StudentConstant.AGE_INDEX, student.getAge());
 			preparedStatement.setDouble(StudentConstant.GRADE_INDEX, student.getGrade());
 
-			preparedStatement.executeUpdate();
-
-			System.out.println("[INFO] Student added to database successfully");
+			int rowsAffected = preparedStatement.executeUpdate();
+			if (rowsAffected > 0) {
+				logger.info("Student added to database successfully");
+				return true;
+			}
+			logger.warn("Student was not added to database.");
 
 			return true;
 		}
@@ -53,25 +57,24 @@ public class StudentDBDAOImpl implements StudentDAO {
 	public List<Student> getAllStudent() throws SQLException {
 		List<Student> students = new ArrayList<Student>();
 
-		String sql = "SELECT id, name, age, grade FROM student";
-		System.out.println("[INFO] Reading students from database.");
+		String sql = "SELECT name, age, grade FROM student";
+		logger.debug("Reading students from database.");
 		try (Connection connection = DBConnection.getConnection();
 				PreparedStatement preparedStatement = connection.prepareStatement(sql);
 				ResultSet resultSet = preparedStatement.executeQuery()) {
 
 			while (resultSet.next()) {
 
-				int id = resultSet.getInt(StudentConstant.ID_INDEX);
 				String name = resultSet.getString(StudentConstant.NAME_INDEX);
 				int age = resultSet.getInt(StudentConstant.AGE_INDEX);
 				double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
 
-				Student student = new Student(id, name, age, grade);
+				Student student = new Student(name, age, grade);
 
 				students.add(student);
 			}
 
-			System.out.println("[INFO] Finished reading students from database.");
+			logger.info("Finished reading students from database.");
 
 		}
 		return students;
@@ -81,9 +84,9 @@ public class StudentDBDAOImpl implements StudentDAO {
 	@Override
 	public Student getStudentByName(String searchName) throws SQLException {
 
-		String sql = "SELECT id, name, age, grade FROM student WHERE name = ?";
-		System.out.println("[INFO] Reading student from database.");
-
+		String sql = "SELECT name, age, grade FROM student WHERE name = ?";
+		logger.debug("Reading student from database.");
+		
 		Student student = null;
 
 		try (Connection connection = DBConnection.getConnection();
@@ -95,20 +98,20 @@ public class StudentDBDAOImpl implements StudentDAO {
 
 				if (resultSet.next()) {
 
-					int id = resultSet.getInt(StudentConstant.ID_INDEX);
 					String name = resultSet.getString(StudentConstant.NAME_INDEX);
 					int age = resultSet.getInt(StudentConstant.AGE_INDEX);
 					double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
 
-					student = new Student(id, name, age, grade);
+					student = new Student(name, age, grade);
 
-					System.out.println("[INFO] Student found: " + name);
+					logger.info("Student found: {}", searchName);
 				} else {
-					System.out.println("[INFO] Student not found: " + searchName);
+					logger.info("Student not found: {}", searchName);
 				}
 			}
 		}
-		System.out.println("[INFO] Finished reading student from database.");
+		
+		logger.info("Finished reading student from database.");
 
 		return student;
 	}
