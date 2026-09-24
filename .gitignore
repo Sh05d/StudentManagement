@@ -1,1 +1,8 @@
-/bin/
+bin/
+.settings/
+Resources/
+
+*.class
+
+logs/
+*.log
