@@ -28,8 +28,8 @@ public class StudentFileServiceImpl implements StudentService {
 
 		try {
 
-			if (studentDAO.getStudentByName(student.getName()) != null) {
-				throw new StudentAlreadyExistsException("Student " + student.getName() + " already exists");
+			if (studentDAO.getStudentByNationalId(student.getNationalId()) != null) {
+				throw new StudentAlreadyExistsException("Student " + student.getNationalId() + " already exists");
 			}
 
 			return studentDAO.addStudent(student);
@@ -74,16 +74,30 @@ public class StudentFileServiceImpl implements StudentService {
 
 	// Update
 	@Override
-	public boolean updateStudent(int id, Student student) {
-		boolean flag = studentDAO.updateStudent(id, student);
-		return flag;
+	public boolean updateStudent(String nationalId, Student student) {
+
+		try {
+			return studentDAO.updateStudent(nationalId, student);
+
+		} catch (Exception e) {
+
+			logger.error("Failed to update student in file storage. National ID: " + nationalId, e);
+			return false;
+		}
 	}
 
 	// Delete
 	@Override
-	public boolean deleteStudent(int id) {
-		boolean flag = studentDAO.deleteStudent(id);
-		return flag;
+	public boolean deleteStudent(String nationalId) {
+
+		try {
+			return studentDAO.deleteStudent(nationalId);
+
+		} catch (Exception e) {
+
+			logger.error("Failed to delete student from file storage. National ID: " + nationalId, e);
+			return false;
+		}
 	}
 
 }

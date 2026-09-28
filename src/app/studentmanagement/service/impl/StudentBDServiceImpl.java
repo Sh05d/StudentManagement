@@ -17,7 +17,7 @@ public class StudentBDServiceImpl implements StudentService {
 	private StudentDAO studentDAO;
 	StudentFileServiceImpl studentFileService;
 	private static final Logger logger = LogManager.getLogger(StudentBDServiceImpl.class);
-	 
+
 	public StudentBDServiceImpl() {
 		studentDAO = new StudentDBDAOImpl();
 		studentFileService = new StudentFileServiceImpl();
@@ -29,8 +29,8 @@ public class StudentBDServiceImpl implements StudentService {
 
 		try {
 
-			if (studentDAO.getStudentByName(student.getName()) != null) {
-				throw new StudentAlreadyExistsException("Student " + student.getName() + " already exists");
+			if (studentDAO.getStudentByNationalId(student.getNationalId()) != null) {
+				throw new StudentAlreadyExistsException("Student " + student.getNationalId() + " already exists");
 			}
 
 			return studentDAO.addStudent(student);
@@ -78,13 +78,29 @@ public class StudentBDServiceImpl implements StudentService {
 
 	// Update
 	@Override
-	public boolean updateStudent(int id, Student student) {
-		return studentDAO.updateStudent(id, student);
+	public boolean updateStudent(String nationalId, Student student) {
+		try {
+			return studentDAO.updateStudent(nationalId, student);
+
+		} catch (Exception e) {
+
+			logger.warn("Failed to update student in database. Using file storage. " + "National ID: " + nationalId, e);
+			return studentFileService.updateStudent(nationalId, student);
+		}
 	}
 
 	// Delete
 	@Override
-	public boolean deleteStudent(int id) {
-		return studentDAO.deleteStudent(id);
+	public boolean deleteStudent(String nationalId) {
+		try {
+
+			return studentDAO.deleteStudent(nationalId);
+
+		} catch (Exception e) {
+
+			logger.warn("Failed to delete student from database. Using file storage. " + "National ID: " + nationalId,
+					e);
+			return studentFileService.deleteStudent(nationalId);
+		}
 	}
 }

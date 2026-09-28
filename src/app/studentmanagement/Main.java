@@ -55,6 +55,16 @@ public class Main {
 					break;
 
 				case 4:
+					logger.info("Starting Update Student operation.");
+					updateStudent();
+					break;
+
+				case 5:
+					logger.info("Starting Delete Student operation.");
+					deleteStudent();
+					break;
+
+				case 6:
 					logger.info("User selected Exit.");
 					System.out.println("Thank you");
 					break;
@@ -64,13 +74,13 @@ public class Main {
 					System.out.println("Incorrect option try again");
 				}
 			} catch (InputMismatchException e) {
-			    logger.warn("User Entered Invalid input.");
-			    System.out.println("Invalid input. Please try again.");
-			    scanner.nextLine();
-			
+				logger.warn("User Entered Invalid input.");
+				System.out.println("Invalid input. Please try again.");
+				scanner.nextLine();
+
 			}
 
-		} while (option != 4);
+		} while (option != 6);
 
 		logger.info("Application closed.");
 
@@ -87,14 +97,20 @@ public class Main {
 		+ "1. Add Student\n"
 		+ "2. Show Students\n"
 		+ "3. Find Student\n" 
-		+ "4. Exit\n" 
+		+ "4. Update Student\n"
+		+ "5. Delete Student\n"
+		+ "6. Exit\n"
 		+ "Enter the number of the option you want: ");
+
 	}
 
 	/**
 	 * Adds a new student to the students file.
 	 */
 	static void addStudent() {
+
+		System.out.println("Enter student national ID:");
+		String nationalId = scanner.next();
 
 		System.out.println("Enter student name:");
 		scanner.nextLine();
@@ -106,13 +122,17 @@ public class Main {
 		System.out.println("Enter student grade:");
 		double grade = scanner.nextDouble();
 
-		Student student = new Student(name, age, grade);
-
 		try {
+			Student student = new Student(name, age, grade, nationalId);
+			
 			boolean flag = studentService.addStudent(student);
 			if (flag) {
 				System.out.println("Student added successfully.");
 			}
+		} catch (IllegalArgumentException e) {
+			System.out.println(e.getMessage());
+			logger.warn("Invalid student data: {}", e.getMessage());
+
 		} catch (StudentAlreadyExistsException e) {
 			System.out.println(e.getMessage());
 			logger.warn("Student already exists: {}", e.getMessage());
@@ -155,6 +175,61 @@ public class Main {
 	}
 
 	/**
+	 * Updates a student's name, age, and grade using their national ID. The
+	 * national ID itself cannot be changed.
+	 */
+	private static void updateStudent() {
+
+		System.out.println("Enter student national ID:");
+		String nationalId = scanner.next();
+
+		System.out.println("Enter new student name:");
+		scanner.nextLine();
+		String name = scanner.nextLine();
+
+		System.out.println("Enter new student age:");
+		int age = scanner.nextInt();
+
+		System.out.println("Enter new student grade:");
+		double grade = scanner.nextDouble();
+
+		try {
+			Student student = new Student(name, age, grade, nationalId);
+
+			boolean updated = studentService.updateStudent(nationalId, student);
+
+			if (updated) {
+				System.out.println("Student updated successfully.");
+			} else {
+				System.out.println("Student not found.");
+			}
+
+		} catch (IllegalArgumentException e) {
+			System.out.println(e.getMessage());
+			logger.warn("Invalid student data: {}", e.getMessage());
+		}
+	}
+
+	/**
+	 * Deletes a student using their national ID.
+	 */
+	private static void deleteStudent() {
+
+		System.out.println("Enter student national ID:");
+		String nationalId = scanner.next();
+
+		boolean deleted = studentService.deleteStudent(nationalId);
+
+		if (deleted) {
+			System.out.println("Student deleted successfully.");
+			logger.info("Student deleted: {}", nationalId);
+		} else {
+			System.out.println("Student not found.");
+			logger.warn("Student not found for deletion: {}", nationalId);
+		}
+	}
+
+	/**
 	 * Tests the database connection.
 	 */
 	public static void testConnection() {
@@ -167,7 +242,7 @@ public class Main {
 
 			connection.close();
 			logger.info("Database test connection closed.");
-			
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			logger.error("Database test connection failed.", e);

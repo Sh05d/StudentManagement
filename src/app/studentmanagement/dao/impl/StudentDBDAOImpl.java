@@ -29,7 +29,7 @@ public class StudentDBDAOImpl implements StudentDAO {
 	@Override
 	public boolean addStudent(Student student) throws SQLException {
 
-		String sql = "INSERT INTO student (name, age, grade) VALUES (?,?,?)";
+		String sql = "INSERT INTO student (name, age, grade, national_id) VALUES (?,?,?,?)";
 
 		logger.debug("Writing student to database.");
 		try (Connection connection = DBConnection.getConnection();
@@ -40,13 +40,14 @@ public class StudentDBDAOImpl implements StudentDAO {
 			preparedStatement.setString(StudentConstant.NAME_INDEX, student.getName());
 			preparedStatement.setInt(StudentConstant.AGE_INDEX, student.getAge());
 			preparedStatement.setDouble(StudentConstant.GRADE_INDEX, student.getGrade());
+			preparedStatement.setString(StudentConstant.NATIONAL_ID_INDEX, student.getNationalId());
 
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected > 0) {
 				logger.info("Student added to database successfully");
 				return true;
 			}
-			
+
 			logger.warn("Student was not added to database.");
 			return false;
 		}
@@ -57,7 +58,7 @@ public class StudentDBDAOImpl implements StudentDAO {
 	public List<Student> getAllStudent() throws SQLException {
 		List<Student> students = new ArrayList<Student>();
 
-		String sql = "SELECT name, age, grade FROM student";
+		String sql = "SELECT name, age, grade, national_id FROM student";
 		logger.debug("Reading students from database.");
 		try (Connection connection = DBConnection.getConnection();
 				PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -68,8 +69,9 @@ public class StudentDBDAOImpl implements StudentDAO {
 				String name = resultSet.getString(StudentConstant.NAME_INDEX);
 				int age = resultSet.getInt(StudentConstant.AGE_INDEX);
 				double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
+				String nationalId = resultSet.getString(StudentConstant.NATIONAL_ID_INDEX);
 
-				Student student = new Student(name, age, grade);
+				Student student = new Student(name, age, grade, nationalId);
 
 				students.add(student);
 			}
@@ -84,9 +86,9 @@ public class StudentDBDAOImpl implements StudentDAO {
 	@Override
 	public Student getStudentByName(String searchName) throws SQLException {
 
-		String sql = "SELECT name, age, grade FROM student WHERE name = ?";
+		String sql = "SELECT name, age, grade, national_id FROM student WHERE name = ?";
 		logger.debug("Reading student from database.");
-		
+
 		Student student = null;
 
 		try (Connection connection = DBConnection.getConnection();
@@ -101,8 +103,9 @@ public class StudentDBDAOImpl implements StudentDAO {
 					String name = resultSet.getString(StudentConstant.NAME_INDEX);
 					int age = resultSet.getInt(StudentConstant.AGE_INDEX);
 					double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
+					String nationalId = resultSet.getString(StudentConstant.NATIONAL_ID_INDEX);
 
-					student = new Student(name, age, grade);
+					student = new Student(name, age, grade, nationalId);
 
 					logger.info("Student found: {}", searchName);
 				} else {
@@ -110,7 +113,7 @@ public class StudentDBDAOImpl implements StudentDAO {
 				}
 			}
 		}
-		
+
 		logger.info("Finished reading student from database.");
 
 		return student;
@@ -118,13 +121,87 @@ public class StudentDBDAOImpl implements StudentDAO {
 
 	// Update
 	@Override
-	public boolean updateStudent(int id, Student student) {
-		return true;
+	public boolean updateStudent(String nationalId, Student student) throws SQLException {
+
+		String sql = "UPDATE student SET name = ?, age = ?, grade = ? WHERE national_id = ?";
+
+		logger.debug("Updating student in database: {}", nationalId);
+
+		try (Connection connection = DBConnection.getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+			preparedStatement.setString(StudentConstant.NAME_INDEX, student.getName());
+			preparedStatement.setInt(StudentConstant.AGE_INDEX, student.getAge());
+			preparedStatement.setDouble(StudentConstant.GRADE_INDEX, student.getGrade());
+			preparedStatement.setString(StudentConstant.NATIONAL_ID_INDEX, nationalId);
+
+			int rowsAffected = preparedStatement.executeUpdate();
+
+			if (rowsAffected > 0) {
+				logger.info("Student updated successfully: {}", nationalId);
+				return true;
+			}
+
+			logger.warn("Student not found: {}", nationalId);
+			return false;
+		}
 	}
 
 	// Delete
 	@Override
-	public boolean deleteStudent(int id) {
-		return true;
+	public boolean deleteStudent(String nationalId) throws SQLException {
+		String sql = "DELETE FROM student WHERE national_id = ?";
+
+		logger.debug("Deleting student from database: {}", nationalId);
+
+		try (Connection connection = DBConnection.getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+			preparedStatement.setString(1, nationalId);
+
+			int rowsAffected = preparedStatement.executeUpdate();
+
+			if (rowsAffected > 0) {
+				logger.info("Student deleted successfully: {}", nationalId);
+				return true;
+			}
+
+			logger.warn("Student not found: {}", nationalId);
+			return false;
+		}
+	}
+
+	@Override
+	public Student getStudentByNationalId(String nationalId) throws SQLException {
+		String sql = "SELECT name, age, grade, national_id FROM student WHERE national_id = ?";
+		logger.debug("Reading student from database.");
+
+		Student student = null;
+
+		try (Connection connection = DBConnection.getConnection();
+				PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+			preparedStatement.setString(1, nationalId);
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+				if (resultSet.next()) {
+
+					String name = resultSet.getString(StudentConstant.NAME_INDEX);
+					int age = resultSet.getInt(StudentConstant.AGE_INDEX);
+					double grade = resultSet.getDouble(StudentConstant.GRADE_INDEX);
+
+					student = new Student(name, age, grade, nationalId);
+
+					logger.info("Student found: {}", nationalId);
+				} else {
+					logger.info("Student not found: {}", nationalId);
+				}
+			}
+		}
+
+		logger.info("Finished reading student from database.");
+
+		return student;
 	}
 }
