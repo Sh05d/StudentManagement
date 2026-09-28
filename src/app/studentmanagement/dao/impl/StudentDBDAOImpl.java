@@ -46,9 +46,9 @@ public class StudentDBDAOImpl implements StudentDAO {
 				logger.info("Student added to database successfully");
 				return true;
 			}
+			
 			logger.warn("Student was not added to database.");
-
-			return true;
+			return false;
 		}
 	}
 
