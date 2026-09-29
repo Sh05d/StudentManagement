@@ -10,7 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import app.studentmanagement.exception.StudentAlreadyExistsException;
+import app.studentmanagement.model.Course;
 import app.studentmanagement.model.Student;
+import app.studentmanagement.service.impl.CourseService;
 import app.studentmanagement.service.impl.StudentBDServiceImpl;
 import app.studentmanagement.util.DBConnection;
 
@@ -18,27 +20,116 @@ public class Main {
 
 	static Scanner scanner = new Scanner(System.in);
 	static StudentBDServiceImpl studentService = new StudentBDServiceImpl();
+	static CourseService courseService = new CourseService();
 	private static final Logger logger = LogManager.getLogger(Main.class);
 
 	public static void main(String[] args) {
 
 		testConnection();
+		
+		int option = 0;
+
+	    do {
+	        showMenu();
+
+	        try {
+	            option = scanner.nextInt();
+
+	            switch (option) {
+
+	            case 1:
+	                studentMenu();
+	                break;
+
+	            case 2:
+	                courseMenu();
+	                break;
+
+	            case 3:
+	                System.out.println("Thank you. Goodbye!");
+	                logger.info("User selected Exit.");
+	                break;
+
+	            default:
+	                System.out.println("Invalid option. Please try again.");
+	                logger.warn("Invalid main menu option: {}", option);
+	            }
+
+	        } catch (InputMismatchException e) {
+	            System.out.println("Invalid input. Please enter a number.");
+	            logger.warn("User entered invalid input.");
+	            scanner.nextLine();
+	        }
+
+	    } while (option != 3);
+
+	    logger.info("Application closed.");
+	    scanner.close();
+	}
+
+	/**
+	 * Displays the main menu and asks the user to select an option.
+	 */
+	private static void showMenu() {
+
+		System.out.println("----------------------------\n" 
+		+ "MAIN MENU:\n"
+		+ "1. Student Menu\n"
+		+ "2. Course Menu\n"
+		+ "3. Exit\n"
+		+ "Enter the number of the option you want: ");
+
+	}
+	
+	/**
+	 * Displays the student menu and asks the user to select an option.
+	 */
+	private static void showStudentMenu() {
+
+	    System.out.println("----------------------------\n"
+	    + "STUDENT MENU:\n"
+	    + "1. Add Student\n"
+	    + "2. Show Students\n"
+	    + "3. Find Student\n"
+	    + "4. Update Student\n"
+	    + "5. Delete Student\n"
+	    + "6. Back to Main Menu\n"
+	    + "Enter the number of the option you want: ");
+
+	}
+
+	/**
+	 * Displays the course menu and asks the user to select an option.
+	 */
+	private static void showCourseMenu() {
+
+	    System.out.println("----------------------------\n"
+	    + "COURSE MENU:\n"
+	    + "1. Add Course\n"
+	    + "2. Show Courses\n"
+	    + "3. Find Course\n"
+	    + "4. Update Course\n"
+	    + "5. Delete Course\n"
+	    + "6. Back to Main Menu\n"
+	    + "Enter the number of the option you want: ");
+
+	}
+
+	/**
+	 * Displays the student menu and handles student-related operations. The menu
+	 * continues to run until the user chooses to return to the main menu.
+	 */
+	private static void studentMenu() {
 
 		int option = 0;
 
 		do {
+			showStudentMenu();
 
-			logger.debug("Displaying main menu.");
-
-			showMenu();
 			try {
-
 				option = scanner.nextInt();
 
-				logger.info("User selected menu option: {}", option);
-
 				switch (option) {
-
 				case 1:
 					logger.info("Starting Add Student operation.");
 					addStudent();
@@ -50,7 +141,7 @@ public class Main {
 					break;
 
 				case 3:
-					logger.info("Starting Search Student operation.");
+					logger.info("Starting Find Student operation.");
 					searchStudent();
 					break;
 
@@ -65,47 +156,84 @@ public class Main {
 					break;
 
 				case 6:
-					logger.info("User selected Exit.");
-					System.out.println("Thank you");
+					logger.info("Returning to main menu.");
+					System.out.println("Returning to main menu...");
 					break;
 
 				default:
-					logger.warn("Invalid menu option entered: {}", option);
-					System.out.println("Incorrect option try again");
+					logger.warn("Invalid student menu option: {}", option);
+					System.out.println("Invalid option. Please try again.");
 				}
-			} catch (InputMismatchException e) {
-				logger.warn("User Entered Invalid input.");
-				System.out.println("Invalid input. Please try again.");
-				scanner.nextLine();
 
+			} catch (InputMismatchException e) {
+				System.out.println("Invalid input. Please enter a number.");
+				scanner.nextLine();
 			}
 
 		} while (option != 6);
-
-		logger.info("Application closed.");
-
-		scanner.close();
 	}
 
 	/**
-	 * Displays the main menu and asks the user to select an option.
+	 * Displays the course menu and handles course-related operations. The menu
+	 * continues to run until the user chooses to return to the main menu.
 	 */
-	private static void showMenu() {
+	private static void courseMenu() {
 
-		System.out.println("----------------------------\n" 
-		+ "MENU:\n" 
-		+ "1. Add Student\n"
-		+ "2. Show Students\n"
-		+ "3. Find Student\n" 
-		+ "4. Update Student\n"
-		+ "5. Delete Student\n"
-		+ "6. Exit\n"
-		+ "Enter the number of the option you want: ");
+		int option = 0;
 
+		do {
+			showCourseMenu();
+
+			try {
+				option = scanner.nextInt();
+
+				switch (option) {
+				case 1:
+					logger.info("Starting Add Course operation.");
+					addCourse();
+					break;
+
+				case 2:
+					logger.info("Starting Show Courses operation.");
+					showCourses();
+					break;
+
+				case 3:
+					logger.info("Starting Find Course operation.");
+					findCourse();
+					break;
+
+				case 4:
+					logger.info("Starting Update Course operation.");
+					updateCourse();
+					break;
+
+				case 5:
+					logger.info("Starting Delete Course operation.");
+					deleteCourse();
+					break;
+
+				case 6:
+					logger.info("Returning to main menu.");
+					System.out.println("Returning to main menu...");
+					break;
+
+				default:
+					logger.warn("Invalid course menu option: {}", option);
+					System.out.println("Invalid option. Please try again.");
+
+				}
+
+			} catch (InputMismatchException e) {
+				System.out.println("Invalid input. Please enter a number.");
+				scanner.nextLine();
+			}
+
+		} while (option != 6);
 	}
 
 	/**
-	 * Adds a new student to the students file.
+	 * Adds a new student 
 	 */
 	static void addStudent() {
 
@@ -230,6 +358,154 @@ public class Main {
 	}
 
 	/**
+	 * Adds a new course.
+	 */
+	private static void addCourse() {
+
+	    System.out.println("Enter course code:");
+	    String courseCode = scanner.next();
+
+	    System.out.println("Enter course name:");
+	    scanner.nextLine();
+	    String name = scanner.nextLine();
+
+	    System.out.println("Enter course description:");
+	    String description = scanner.nextLine();
+
+	    try {
+		    Course course = new Course(name, description, courseCode);
+		    
+	        boolean added = courseService.addCourse(course);
+
+	        if (added) {
+	            System.out.println("Course added successfully.");
+	        } else {
+	            System.out.println("Course was not added.");
+	        }
+
+	    } catch (IllegalArgumentException e) {
+			System.out.println(e.getMessage());
+			logger.warn("Invalid course data: {}", e.getMessage());
+
+		} catch (Exception e) {
+	        System.out.println("An unexpected error occurred.");
+	        logger.error("Error while adding course.", e);
+	    }
+	}
+
+	/**
+	 * Retrieves and displays all courses.
+	 */
+	private static void showCourses() {
+
+	    try {
+	        List<Course> courses = courseService.showCourses();
+
+	        if (courses.isEmpty()) {
+	            System.out.println("No courses found.");
+	            return;
+	        }
+
+	        for (Course course : courses) {
+	            System.out.println(course);
+	        }
+
+	    } catch (Exception e) {
+	        System.out.println("An unexpected error occurred.");
+	        logger.error("Error while retrieving courses.", e);
+	    }
+	}
+
+	/**
+	 * Searches for a course using its course code.
+	 */
+	private static void findCourse() {
+
+	    System.out.println("Enter course code:");
+	    String courseCode = scanner.next();
+
+	    try {
+	        Course course = courseService.findCourses(courseCode);
+
+	        if (course == null) {
+	            System.out.println("Course not found.");
+	        } else {
+	            System.out.println(course);
+	        }
+
+	    } catch (Exception e) {
+	        System.out.println("An unexpected error occurred.");
+	        logger.error("Error while searching for course.", e);
+	    }
+	}
+
+	/**
+	 * Updates a course's name and description using its course code.
+	 * The course code itself cannot be changed.
+	 */
+	private static void updateCourse() {
+
+	    System.out.println("Enter course code:");
+	    String courseCode = scanner.next();
+
+	    System.out.println("Enter new course name:");
+	    scanner.nextLine();
+	    String name = scanner.nextLine();
+
+	    System.out.println("Enter new course description:");
+	    String description = scanner.nextLine();
+
+
+
+	    try {
+		    Course course = new Course(name, description, courseCode);
+		    
+	        boolean updated = courseService.updateCourse(courseCode, course);
+
+	        if (updated) {
+	            System.out.println("Course updated successfully.");
+	            logger.info("Course updated: {}", courseCode);
+	        } else {
+	            System.out.println("Course not found.");
+	            logger.warn("Course not found for update: {}", courseCode);
+	        }
+
+	    } catch (IllegalArgumentException e) {
+			System.out.println(e.getMessage());
+			logger.warn("Invalid course data: {}", e.getMessage());
+
+		} catch (Exception e) {
+	        System.out.println("An unexpected error occurred.");
+	        logger.error("Error while updating course.", e);
+	    }
+	}
+
+	/**
+	 * Deletes a course using its course code.
+	 */
+	private static void deleteCourse() {
+
+	    System.out.println("Enter course code:");
+	    String courseCode = scanner.next();
+
+	    try {
+	        boolean deleted = courseService.deleteCourse(courseCode);
+
+	        if (deleted) {
+	            System.out.println("Course deleted successfully.");
+	            logger.info("Course deleted: {}", courseCode);
+	        } else {
+	            System.out.println("Course not found.");
+	            logger.warn("Course not found for deletion: {}", courseCode);
+	        }
+
+	    } catch (Exception e) {
+	        System.out.println("An unexpected error occurred.");
+	        logger.error("Error while deleting course.", e);
+	    }
+	}
+	
+	/**
 	 * Tests the database connection.
 	 */
 	public static void testConnection() {
@@ -248,4 +524,5 @@ public class Main {
 			logger.error("Database test connection failed.", e);
 		}
 	}
+
 }
