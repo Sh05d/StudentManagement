@@ -2,22 +2,32 @@
 
 ## Description
 
-Student Management System is a Java application designed to manage student information in an organized and simple way. The system allows users to add, view, update, search, and delete student records. It provides the basic functionality needed to keep student data organized and makes managing student information easier.
-
-This project was developed using Java and can be used as a simple example of building a student management application.
+Student Management System is a Java application designed to manage student and course information in an organized and simple way. The system provides CRUD operations through a console-based menu.
 
 ## Features
 
-- **Add Students:** Add new students to the system with their required information.
+### Student Management
+
+- **Add Students:** Add new students with their required information and National ID.
 - **View Students:** Display available student records and their information.
-- **Update Students:** Modify existing student information when changes are needed.
-- **Search Students:** Search for students and quickly find their information.
-- **Delete Students:** Remove student records that are no longer required.
-- **Student Management:** Manage student records in one application instead of maintaining information manually.
+- **Search Student:** Search for a student by name and quickly find the student's information.
+- **Update Students:** Modify existing student information using the student's National ID.
+- **Delete Students:** Remove student records using the student's National ID.
+
+### Course Management
+
+- **Add Courses:** Add new courses with their name, description, and Course Code.
+- **View Courses:** Display available course records and their information.
+- **Update Courses:** Modify existing course information using the Course Code.
+- **Search Courses:** Search for courses using their Course Code.
+- **Delete Courses:** Remove course records using the Course Code.
 
 ## Technologies
 
 - Java
+- Microsoft SQL Server
+- JDBC
+- Log4j
 - Eclipse IDE
 
 ## Getting Started
@@ -26,15 +36,21 @@ Clone the repository:
 
     git clone https://github.com/Sh05d/StudentManagement.git
 
-Open the project in Eclipse and run the main Java class.
+Open the project in Eclipse, configure the database connection, and run the `Main` Java class.
 
 ## Project Structure
 
     StudentManagement/
     ├── src/
+    │   └── app/
+    │       └── studentmanagement/
+    │           ├── constants/
+    │           ├── dao/
+    │           ├── exception/
+    │           ├── model/
+    │           ├── service/
+    │           ├── util/
+    │           └── Main.java
     ├── .classpath
     ├── .project
     └── README.md
-
-
-
